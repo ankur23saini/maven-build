@@ -1,0 +1,31 @@
+pipeline {
+    agent { label "Master"}
+	
+	environment {
+	
+		DOCKERHUB_USER = "ankur23saini"
+		DOCKERHUB_PSW = "Dockerhub@123"
+                DOCKER_IMAGE = 'ankur23saini/build_java_app' // DockerHub repo
+		DOCKER_IMAGE_TAG = 'latest'
+		REMOTE_VM = 'ankur@192.168.29.100'
+    }
+
+	
+    stages {
+            
+        stage('Clone Java Repo') {
+            steps {
+                git branch: "master", url: "https://github.com/ankur23saini/simple-java-maven-app.git"
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                sh 'mvn -B -DskipTests clean package'
+            }
+        }
+        stage('Build Jar') {
+            steps {
+                archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+            }
+            }
