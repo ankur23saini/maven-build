@@ -1,3 +1,11 @@
+
+properties([
+parameters([
+string(defaultValue: 'https://github.com/ankur23saini/simple-java-maven-app.git', description: '', name: 'SRC_CLONE_URL'),
+string(defaultValue: '', description: '', name: 'SRC_BRANCH_FOR_CLONE'),
+string(defaultValue: "1", description: '', name: 'BLD_NUMBER'),
+])
+])
 pipeline {
     agent { label "Master"}
 	
@@ -8,6 +16,7 @@ pipeline {
                 DOCKER_IMAGE = 'ankur23saini/build_java_app' // DockerHub repo
 		DOCKER_IMAGE_TAG = 'latest'
 		REMOTE_VM = 'ankur@192.168.29.100'
+		DATE = sh(script: 'date +%Y%m%d', returnStdout: true).trim()
     }
 
 	
@@ -15,13 +24,13 @@ pipeline {
             
         stage('Clone Java Repo') {
             steps {
-                git branch: "master", url: "https://github.com/ankur23saini/simple-java-maven-app.git"
+                git branch: "$SRC_BRANCH_FOR_CLONE", url: "$SRC_CLONE_URL"
             }
         }
         
         stage('Build') {
             steps {
-                sh 'mvn -B -DskipTests clean package'
+                sh """mvn versions:set -DnewVersion="${BLD_NUMBER}_${DATE}" && mvn -B -DskipTests clean package"""
             }
         }
         stage('Build Jar') {
@@ -29,3 +38,5 @@ pipeline {
                 archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
             }
             }
+}
+}
