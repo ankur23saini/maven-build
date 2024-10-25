@@ -1,3 +1,6 @@
+def currentDate = new Date()
+def dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")
+def formattedDate = dateFormat.format(currentDate)
 
 properties([
 parameters([
@@ -16,7 +19,6 @@ pipeline {
                 DOCKER_IMAGE = 'ankur23saini/build_java_app' // DockerHub repo
 		DOCKER_IMAGE_TAG = 'latest'
 		REMOTE_VM = 'ankur@192.168.29.100'
-		DATE = sh(script: 'date +%Y%m%d', returnStdout: true).trim()
     }
 
 	
@@ -30,7 +32,7 @@ pipeline {
         
         stage('Build') {
             steps {
-                sh """mvn versions:set -DnewVersion="${BLD_NUMBER}_${DATE}" && mvn -B -DskipTests clean package"""
+                sh """mvn versions:set -DnewVersion="${BLD_NUMBER}_${formattedDate}" && mvn -B -DskipTests clean package"""
             }
         }
         stage('Build Jar') {
